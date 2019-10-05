@@ -1,14 +1,29 @@
 ﻿function Read-PSGUIXaml {
-[CmdletBinding()]
-param($xaml)
-    $xamlfile = Get-Item -Path $xaml
-    $FileRootFolder = $xamlfile.Directory  | Split-path
- Write-PSFMessage -Level Verbose "Loading XAML $xaml  - $FileRootFolder"
+    <#
+        .SYNOPSIS
+        Reads the XAML File Content
+        
+        .PARAMETER XAMLfile
+        Path of the WPF XAML file
+        
+        
+        .EXAMPLE
+        Read-PSGUIXaml -XAMLFile "test.xaml" 
+        
+    #>
+    [CmdletBinding()]
+    param(        
+        [Parameter(Position = 0, Mandatory = $true)]
+        [ValidateScript( { Test-Path $_ })]
+        [string]$XAMLfile
+    )
 
-    $xamlContent = Get-Content -Path $xamlfile -raw
+    Write-PSFMessage -Level Verbose "Loading XAML $xaml  - $FileRootFolder"
 
-    [xml]$xamlxml = $xamlContent.Replace('{0}', $FileRootFolder)
-	$xamlReader = New-Object System.Xml.XmlNodeReader $xamlxml
+    $xamlContent = Get-Content -Path $XAMLfile -raw
 
-	[Windows.Markup.XamlReader]::Load($xamlReader)
+    [xml]$xamlxml = $xamlContent.Replace('{0}', $((Get-Item -Path $XAMLfile).Directory | Split-path))
+    $xamlReader = New-Object System.Xml.XmlNodeReader $xamlxml
+
+    [Windows.Markup.XamlReader]::Load($xamlReader)
 }

@@ -1,25 +1,42 @@
 ﻿Function Update-PSGUIWPF {
-    param($xaml, $control, $editormode)
+    <#
+        .SYNOPSIS
+        Reads the XAML File Content
+        
+        .PARAMETER XAMLfile
+        Path of the WPF XAML file
+        
+        
+        .EXAMPLE
+        Read-PSGUIXaml -XAMLFile "test.xaml" 
+        
+    #>
+    param(
+        [Parameter(Position=0,Mandatory=$true)]
+        [ValidateScript({Test-Path $_})]
+        [string]$XAMLfile, 
+        [Parameter(Position = 1, Mandatory = $false)]
+        $ControlName, 
+        [Parameter(Position = 2)]
+        [bool]$EditorMode = $False
+         
+    )
 
+    begin {
+    }
 
     ### CHange XAML Views
+    process {
+        $xaml = Read-PSGUIXaml -XAMLfile $XAMLfile
 
-    Write-PSFMessage -Level Verbose "Updating $xaml View"
-    $#ScriptRootFolder = Get-PSFConfigValue -fullName "gat10.ScriptRootFolder"
-    $xamlpath = "H:\Documents\PS\GUIH-WPF\GAT30\GUIViews\$xaml.xaml"
-    IF (Test-Path -Path $xamlpath) {
-        
-        $xaml = Read-PSGUIXaml $xamlpath
-        
+        (get-variable -Name "$ControlName").Value.Content =  $xaml
+        Add-PSGUIActions -XAMLfile $xamlpath -Control $ContentControl.Content -Editormode $EDITORMODE
     }
-    ELSE {
-        $xamlpath = "$ScriptRootFolder\GUIViews\Generic.xaml"
-        $xaml = Read-PSGUIXaml $xamlpath
-        
+
+    end {
+        Write-PSFMessage -Level Verbose $xamlpath
     }
-    
-    $ContentControl.Content = $xaml
-    Add-PSGUIActions -xamlpath $xamlpath -Control $ContentControl.Content -Editormode $EDITORMODE
+
 }
 
 

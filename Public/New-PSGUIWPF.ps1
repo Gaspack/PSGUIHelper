@@ -1,10 +1,37 @@
 Function New-PSGUIWPF {
-    [CmdletBinding()]
-    param($xamlfile, [bool]$EDITORMODE, $DataContext, $ScriptRootFolder)
+    <#
+        .SYNOPSIS
+        Start the WPF application
+        
+        .PARAMETER XAMLfile
+        Path of the WPF XAML file
+        
+        .PARAMETER EditorMode
+        To edit your GUI WPF scripts live without closing the GUI
+        
+        .EXAMPLE
+        New-PSGUIWPF -XAMLFile "test.xaml" 
+        
+        .EXAMPLE 
+        Get-ChocoConfig -ConfigurationItem proxy
+        
+    #>
+[CmdletBinding()]
+
+    param(
+        [Parameter(Position=0,Mandatory=$true)]
+        [ValidateScript({Test-Path $_})]
+        [string]$XAMLfile, 
+
+        [Parameter(Position=1)]
+        [ValidateSet('True', 'False')]
+        [bool]$EditorMode=$False, 
+        $DataContext, 
+        $ScriptRootFolder
+        )
   
-    #modifydate = Sunday, May 26, 2019 6:37:13 PM
     $xamlfile = Get-Item -Path $xamlfile
-    $FileRootFolder = $xamlfile.Directory | Split-path
+
     #region Add required assemblies
     Write-PSFMessage -Level Verbose "Loading Assembly"
 
@@ -13,22 +40,15 @@ Function New-PSGUIWPF {
 
     #region XAML Main Window
 
-    $Global:Window = Read-PSGUIXaml -xaml $xamlfile
+    $Global:Window = Read-PSGUIXaml -XAMLfile $xamlfile
 
     IF ($EDITORMODE) {
         $Window.Title += " - Editor Mode Enabled"
     }
 
-    Add-PSGUIActions -xamlpath $xamlfile -Control $Window -Editormode $EDITORMODE
+    Add-PSGUIActions -XAMLfile $xamlfile -Control $Window -Editormode $EDITORMODE
     #endregion XAML Main Window
 
-    #region Custom Buttons
-    $custombuttonpath = "$ScriptRootFolder\GUIScripts\$xamlfile" + "_" + "custombuttons.ps1"
-    IF (Test-Path $custombuttonpath) {
-        & "$custombuttonpath" 
-    
-    }
-    #endregion Custom Buttons
 
     #region Setup DataContext 
         
@@ -46,8 +66,9 @@ Function New-PSGUIWPF {
         $asyncwindow = Add-Type -MemberDefinition $windowcode -name Win32ShowWindowAsync -namespace Win32Functions -PassThru -ErrorAction Ignore
         $null = $asyncwindow::ShowWindowAsync((get-process -name cmd | Where-Object MainWindowTitle -eq 'GUILauncher').MainWindowHandle, 0)
 
-        $app = [Windows.Application]::New()
-        $null = $app.Run($Window)
+        #$app = [Windows.Application]::New()
+        #$null = $app.Run($Window)
+        $null = $Window.ShowDialog()
         # Force garbage collection just to start slightly lower RAM usage.
         [System.GC]::Collect()
     }
