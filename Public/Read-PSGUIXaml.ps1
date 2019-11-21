@@ -6,7 +6,6 @@
         .PARAMETER XAMLfile
         Path of the WPF XAML file
         
-        
         .EXAMPLE
         Read-PSGUIXaml -XAMLFile "test.xaml" 
         
@@ -18,7 +17,7 @@
         [string]$XAMLfile
     )
 
-    Write-PSFMessage -Level Verbose "Loading XAML $xaml  - $FileRootFolder"
+    Write-Verbose "Loading XAML $xaml  - $FileRootFolder"
 
     $xamlContent = Get-Content -Path $XAMLfile -raw
 

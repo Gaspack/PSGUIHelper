@@ -17,7 +17,7 @@ Param(
 $innvocationPath = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
 $PSModuleRoot = Split-Path -Parent $innvocationPath
 $TestPath = Join-Path $PSModuleRoot "Tests"
-$Build_ArtifactStagingDirectory = "c:\temp\"
+$Build_ArtifactStagingDirectory = "C:\Users\Gaspack\Desktop\Powershell\Modules"
 $modulename = "GUIHelper"
 
 #Do Stuff based on passed Args
@@ -43,10 +43,15 @@ Switch($true){
 
         $null = New-Item "$($Build_ArtifactStagingDirectory)\$modulename" -ItemType Directory
 
+        Get-ChildItem $PSModuleRoot\Private\*.ps1 | Foreach-Object {
+
+            Get-Content $_.FullName | Add-Content "$($Build_ArtifactStagingDirectory)\$modulename\$modulename.psm1"
+        }
         Get-ChildItem $PSModuleRoot\Public\*.ps1 | Foreach-Object {
 
             Get-Content $_.FullName | Add-Content "$($Build_ArtifactStagingDirectory)\$modulename\$modulename.psm1"
         }
+
 
         Copy-Item "$PSModuleRoot\$modulename.psd1" "$($Build_ArtifactStagingDirectory)\$modulename"
 
@@ -58,7 +63,7 @@ Switch($true){
         #Verify we can load the module and see cmdlets
         Import-Module "$($Build_ArtifactStagingDirectory)\$modulename\$modulename.psd1"
 
-        Get-Command -Module $modulename | Select-Object CommandType, Name, Version, Source | ft
+        Get-Command -Module $modulename | Select-Object CommandType, Name, Version, Source | Format-Table
 
     }
 
@@ -87,7 +92,7 @@ Switch($true){
 
     default {
 
-        echo "Please Provide one of the following switches: -Test, -Build, -Deploy"
+        Write-Output "Please Provide one of the following switches: -Test, -Build, -Deploy"
     }
 
 }

@@ -1,4 +1,5 @@
 Function New-PSGUIWPF {
+
     <#
         .SYNOPSIS
         Start the WPF application
@@ -11,10 +12,7 @@ Function New-PSGUIWPF {
         
         .EXAMPLE
         New-PSGUIWPF -XAMLFile "test.xaml" 
-        
-        .EXAMPLE 
-        Get-ChocoConfig -ConfigurationItem proxy
-        
+
     #>
 [CmdletBinding()]
 
@@ -33,7 +31,7 @@ Function New-PSGUIWPF {
     $xamlfile = Get-Item -Path $xamlfile
 
     #region Add required assemblies
-    Write-PSFMessage -Level Verbose "Loading Assembly"
+    Write-Verbose "Loading Assembly"
 
     [System.Windows.Forms.Application]::EnableVisualStyles()
     #endregion required assemblies
@@ -44,6 +42,9 @@ Function New-PSGUIWPF {
 
     IF ($EDITORMODE) {
         $Window.Title += " - Editor Mode Enabled"
+    }
+    ELSE{
+        Hide-Console
     }
 
     Add-PSGUIActions -XAMLfile $xamlfile -Control $Window -Editormode $EDITORMODE
@@ -61,11 +62,8 @@ Function New-PSGUIWPF {
         # ...otherwise run as an application
     }
     Else {
-        # Make PowerShell Disappear
-        $windowcode = '[DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);' 
-        $asyncwindow = Add-Type -MemberDefinition $windowcode -name Win32ShowWindowAsync -namespace Win32Functions -PassThru -ErrorAction Ignore
-        $null = $asyncwindow::ShowWindowAsync((get-process -name cmd | Where-Object MainWindowTitle -eq 'GUILauncher').MainWindowHandle, 0)
 
+ 
         #$app = [Windows.Application]::New()
         #$null = $app.Run($Window)
         $null = $Window.ShowDialog()

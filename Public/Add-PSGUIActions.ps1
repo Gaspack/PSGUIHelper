@@ -1,16 +1,22 @@
 Function Add-PSGUIActions {
     <#
         .SYNOPSIS
-        Reads the XAML File Content
+        Adds Actions to Controls
         
         .PARAMETER XAMLfile
         Path of the WPF XAML file
         
+        .PARAMETER Control
+        Sets the control in question
+
+        .PARAMETER EditorMode
+        Allows live editing of control actions        
         
         .EXAMPLE
-        Read-PSGUIXaml -XAMLFile "test.xaml" 
+        Add-PSGUIActions -XAMLFile "test.xaml" -Control $Control -EditorMode $false
         
-    #>  
+    #> 
+    [CmdletBinding()]
     param(
         [Parameter(Position = 0, Mandatory = $true)]
         [ValidateScript( { Test-Path $_ })]
@@ -44,7 +50,7 @@ Function Add-PSGUIActions {
                     $tag = ($_).Trim()
         
                     $btntemp = $xamlpath.BaseName + "_" + $name + "_" + $tag
-                    write-psfmessage "Registering Action $btntemp"
+                    Write-Verbose "Registering Action $btntemp"
              
                     # Load all available buttons, and execute via external script file
                     IF ($EDITORMODE) {
@@ -57,17 +63,17 @@ $actionname = $e.RoutedEvent.Name
 
 
                         $action2 += @"
-    write-psfmessage "Viewing $btntemp"
+    Write-Verbose "Viewing $btntemp"
     & "$FileRootFolder\GUIScripts\$($xamlpath.BaseName)\$btntemp.ps1"
 "@
 
                         $scriptblock = [scriptblock]::Create($action2)
-                        write-psfmessage "Editor Mode Enabled - $name - $Tag" -tag $Tag -verbose
+                        Write-Verbose "Editor Mode Enabled - $name - $Tag" 
                         Try {
                             (Get-Variable -Name $name).Value.$("Add_$tag")($scriptblock)
                         }
                         Catch {
-                            Write-PSFMessage -Level Warning -Message "ERROR: " -ErrorRecord $_ -verbose
+                            Write-Verbose "ERROR: "
                         }
                             IF (!(Test-Path $FileRootFolder\GUIScripts\$($xamlpath.BaseName)\$btntemp.ps1)) {
                             new-item $FileRootFolder\GUIScripts\$($xamlpath.BaseName)\$btntemp.ps1 -force
