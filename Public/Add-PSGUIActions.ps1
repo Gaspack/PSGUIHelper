@@ -2,6 +2,12 @@ Function Add-PSGUIActions {
     <#
         .SYNOPSIS
         Adds Actions to Controls
+
+        .DESCRIPTION
+
+
+        To add actions to controls, add the "Tag" to each control, the powershell script will take care of creating *.ps1 files in the "GUIScripts" folder
+        <Button Name="btnHello" Tag="Click" />
         
         .PARAMETER XAMLfile
         Path of the WPF XAML file
@@ -13,7 +19,7 @@ Function Add-PSGUIActions {
         Allows live editing of control actions        
         
         .EXAMPLE
-        Add-PSGUIActions -XAMLFile "test.xaml" -Control $Control -EditorMode $false
+        Add-PSGUIActions -XAMLFile "test.xaml" -Control $Control -EditorMode $true
         
     #> 
     [CmdletBinding()]
@@ -23,7 +29,7 @@ Function Add-PSGUIActions {
         [string]$XAMLfile, 
 
         [Parameter(Position = 1, Mandatory = $true)]
-        $control, 
+        $Control, 
 
         [Parameter(Position = 2)]
         [bool]$EditorMode = $False

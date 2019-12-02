@@ -6,11 +6,11 @@
         .PARAMETER XAMLfile
         Path of the WPF XAML file
         
-        .PARAMETER ControlName
+        .PARAMETER Control
         Target the Control to be updated
         
         .EXAMPLE
-        Update-PSGUIWPF -XAMLFile "test.xaml"  -ControlMame $control
+        Update-PSGUIWPF -XAMLFile "test.xaml"  -Control $control
     #>
     [CmdletBinding()]
     param(
@@ -18,7 +18,7 @@
         [ValidateScript({Test-Path $_})]
         [string]$XAMLfile, 
         [Parameter(Position = 1, Mandatory = $True)]
-        $ControlName, 
+        $Control, 
         [Parameter(Position = 2)]
         [bool]$EditorMode = $False
          
@@ -31,8 +31,8 @@
     process {
         $xaml = Read-PSGUIXaml -XAMLfile $XAMLfile
 
-        (get-variable -Name "$ControlName").Value.Content =  $xaml
-        $control = (get-variable -Name "$ControlName").Value.Content
+        (get-variable -Name "$Control").Value.Content =  $xaml
+        $control = (get-variable -Name "$Control").Value.Content
         Add-PSGUIActions -XAMLfile $xamlpath -Control $control -Editormode $EDITORMODE
     }
 

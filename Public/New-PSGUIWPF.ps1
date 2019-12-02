@@ -3,7 +3,12 @@ Function New-PSGUIWPF {
     <#
         .SYNOPSIS
         Start the WPF application
-        
+
+        .Description
+
+        To add actions to controls, add the "Tag" to each control, the powershell script will take care of creating *.ps1 files in the "GUIScripts" folder
+        <Button Name="btnHello" Tag="Click" />
+
         .PARAMETER XAMLfile
         Path of the WPF XAML file
         
@@ -12,6 +17,12 @@ Function New-PSGUIWPF {
         
         .EXAMPLE
         New-PSGUIWPF -XAMLFile "test.xaml" 
+
+        .EXAMPLE
+        To auto create button event ps1 files, use the Tag parameter with the available control event handlers.
+        Files are created in GUIScripts folder parent to the xaml file folder.
+
+        New-PSGUIWPF -XAMLFile "text.xaml" -EditorMode $true
 
     #>
 [CmdletBinding()]
@@ -23,7 +34,8 @@ Function New-PSGUIWPF {
 
         [Parameter(Position=1)]
         [ValidateSet('True', 'False')]
-        [bool]$EditorMode=$False, 
+        [bool]$EditorMode=$False,
+        [bool]$HideConsole=$True,
         $DataContext, 
         $ScriptRootFolder
         )
@@ -43,7 +55,7 @@ Function New-PSGUIWPF {
     IF ($EDITORMODE) {
         $Window.Title += " - Editor Mode Enabled"
     }
-    ELSE{
+    IF ($HideConsole){
         Hide-Console
     }
 
@@ -64,9 +76,9 @@ Function New-PSGUIWPF {
     Else {
 
  
-        #$app = [Windows.Application]::New()
-        #$null = $app.Run($Window)
-        $null = $Window.ShowDialog()
+        $app = [Windows.Application]::New()
+        $null = $app.Run($Window)
+        #$null = $Window.ShowDialog()
         # Force garbage collection just to start slightly lower RAM usage.
         [System.GC]::Collect()
     }
